@@ -30,7 +30,7 @@ local methods = {
             data.nick_name,
             data.cell_number,
             ngx.md5(data.password),
-            ngx.now()
+            ngx.localtime()
         )
 
         ngx.say(cjson.encode(db:query(reg_sql)))
