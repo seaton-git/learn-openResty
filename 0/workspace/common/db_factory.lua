@@ -1,33 +1,71 @@
 ---
 --- Created by Seaton.
---- DateTime: 2017/10/26 0026 14:22
+--- DateTime: 2017/11/8 0008 15:19
 ---
 
 local mysql = require('resty.mysql')
 
-function close_db(db)
-    if not db then
-        return
+local MySQL = {}
+
+function MySQL:getClient() -- 创建连接
+    if ngx.ctx[MySQL] then
+        return ngx.ctx[MySQL]
     end
-    db:close()
+
+    local client, err = mysql:new()
+
+    if not client then
+        ngx.log(4, 'client failed')
+    end
+
+    client:set_timeout(3000)
+
+    local options = {
+        host = '127.0.0.1',
+        port = 3306,
+        user = 'root',
+        password = 'root',
+        database = 'db_pet'
+    }
+
+    local res, err, errno, sqlstate = client:connect(options)
+
+    if not res then
+        ngx.say('res nil')
+    end
+
+    ngx.ctx[MySQL] = client
+    return ngx.ctx[MySQL]
 end
 
--- 创建实例
-db, err = mysql:new()
-
-if not db then
-    ngx.say('new mysql error:', err)
-    return
+function MySQL:close() -- 关闭连接
+    if ngx.ctx[MySQL] then
+        ngx.ctx[MySQL]:set_keepalive(0, 100)
+        ngx.ctx[MySQL] = nil
+    end
 end
 
--- 设置超时时间（毫秒）
-db:set_timeout(2000)
+-- 查询
 
-props = {
-    host = '127.0.0.1',
-    port = 3306,
-    database = 'lua',
-    user = 'root',
-    password = 'root',
-    charset = 'utf8'
-}
+function MySQL:query(query)
+
+    local res, err, errno, sqlstate = self:getClient():query(query)
+
+    if not res then
+        return {
+            code = errno,
+            msg = '操作失败',
+            data = res
+        }
+    end
+
+    self:close()
+    return {
+        code = 0,
+        msg = '操作成功',
+        data = res
+    }
+end
+
+return MySQL
+
