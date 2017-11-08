@@ -25,7 +25,7 @@ local methods = {
         local data = ngx.req.get_post_args()
         local id = util.create_uuid()
 
-        local reg_sql = string.format('insert into tb_user (ID, NICK_NAME, CELL_NUMBER, PASSWORD, MODEIFY_DATE) values ("%s", "%s", "%s", "%s", "%s")',
+        local reg_sql = string.format('insert into tb_user (ID, NICK_NAME, CELL_NUMBER, PASSWORD, MODIFY_DATE) values ("%s", "%s", "%s", "%s", "%s")',
             id,
             data.nick_name,
             data.cell_number,
