@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>OpenResty - upload</title>
+</head>
+<body>
+
+<form id="upload-form" action="http://192.168.1.10:8211/app/user/update_head_img" method="post"
+      enctype="multipart/form-data">
+    　　　　<input type="file" id="upload" name="upload"/> <br/>
+    　　　　<input type="button" id="submit" value="上传"/>
+</form>
+<script type="text/javascript">
+    document.querySelector('#submit').onclick = function() {
+        var form = document.querySelector('#upload-form');
+
+        if (window.FormData) {
+            var formData = new FormData();
+
+            // 建立一个upload表单项，值为上传的文件
+            formData.append('upload', document.querySelector('#upload').files[0]);
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('POST', form.getAttribute('action'));
+
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    console.log('success');
+                } else {
+                    console.log('failed')
+                }
+                console.log(JSON.parse(xhr.responseText));
+            };
+
+            xhr.send(formData);
+        }
+    }
+</script>
+</body>
+</html>
